@@ -62,7 +62,6 @@ class Mapapi(QWidget):
         elif event.key() == Qt.Key.Key_Left:
             self.ch_long(-10)
 
-
     def change_scale(self, delta):
         self.scale += delta
         self.scale = max(0, min(self.scale, 19))
