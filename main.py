@@ -19,9 +19,6 @@ class Mapapi(QWidget):
         self.latitude_edit = QLineEdit(str(self.lat))
         lonlabel = QLabel("Долгота:")
         self.longitude_edit = QLineEdit(str(self.long))
-        scale_label = QLabel("Масштаб:")
-        self.scale_edit = QLineEdit(str(self.scale))
-        self.scale_edit.setEnabled(False)
         update_button = QPushButton("↺")
         update_button.clicked.connect(self.update_map)
         self.map_label = QLabel()
@@ -32,13 +29,9 @@ class Mapapi(QWidget):
         hzhz_long = QHBoxLayout()
         hzhz_long.addWidget(lonlabel)
         hzhz_long.addWidget(self.longitude_edit)
-        hzhz_scale = QHBoxLayout()
-        hzhz_scale.addWidget(scale_label)
-        hzhz_scale.addWidget(self.scale_edit)
         vbox = QVBoxLayout()
         vbox.addLayout(hzhz)
         vbox.addLayout(hzhz_long)
-        vbox.addLayout(hzhz_scale)
         vbox.addWidget(update_button)
         vbox.addWidget(self.map_label)
         self.setLayout(vbox)
@@ -46,29 +39,13 @@ class Mapapi(QWidget):
         self.update_map()
         self.show()
 
-    def keyPressEvent(self, event: QKeyEvent):
-        if event.key() == Qt.Key.Key_PageUp:
-            self.change_scale(1)
-        elif event.key() == Qt.Key.Key_PageDown:
-            self.change_scale(-1)
-
-    def change_scale(self, delta):
-        self.scale += delta
-        self.scale = max(0, min(self.scale, 19))
-        self.scale_edit.setText(str(self.scale))
-        self.update_map()
-
     def update_map(self):
         try:
             self.lat = float(self.latitude_edit.text())
             self.long = float(self.longitude_edit.text())
-            self.scale_edit.setText(str(self.scale)) # Отображаем масштаб
-
-            # Запрос к API Яндекс.Карт
             map_url = f"https://static-maps.yandex.ru/1.x/?ll={self.long},{self.lat}&z={self.scale}&l=map"
             response = requests.get(map_url)
             response.raise_for_status()
-
             image = QImage.fromData(response.content)
             pixmap = QPixmap.fromImage(image)
             self.map_label.setPixmap(pixmap)
